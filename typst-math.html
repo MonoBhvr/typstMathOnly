@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Typst Math to KaTeX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <style>
+      :root {
+        color: #172033;
+        background: #f5f7fb;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 980px;
+        padding: 48px 20px;
+      }
+
+      header {
+        margin-bottom: 28px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        letter-spacing: -0.05em;
+        line-height: 1;
+        margin: 0 0 14px;
+      }
+
+      p {
+        color: #5c667a;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid #dfe5ef;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(30, 41, 59, 0.08);
+        overflow: hidden;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .section {
+        padding: 24px;
+      }
+
+      .section + .section {
+        border-left: 1px solid #e6ebf3;
+      }
+
+      label,
+      .label {
+        color: #334155;
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+      }
+
+      textarea {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 16px;
+        color: #111827;
+        font: 1rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        min-height: 180px;
+        padding: 16px;
+        resize: vertical;
+        width: 100%;
+      }
+
+      textarea:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+        outline: none;
+      }
+
+      .examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      button {
+        background: #eef4ff;
+        border: 1px solid #c9d9ff;
+        border-radius: 999px;
+        color: #1d4ed8;
+        cursor: pointer;
+        font: inherit;
+        padding: 8px 12px;
+      }
+
+      button:hover {
+        background: #dbe8ff;
+      }
+
+      .output {
+        background: #0f172a;
+        border-radius: 16px;
+        color: #dbeafe;
+        font: 0.95rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        min-height: 58px;
+        overflow-x: auto;
+        padding: 14px 16px;
+        white-space: pre-wrap;
+      }
+
+      .preview {
+        align-items: center;
+        background: linear-gradient(135deg, #ffffff, #f1f5f9);
+        border: 1px solid #dbe3ee;
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        margin-top: 18px;
+        min-height: 150px;
+        overflow-x: auto;
+        padding: 24px;
+      }
+
+      .error {
+        color: #b42318;
+        font-size: 0.95rem;
+        min-height: 1.4em;
+        margin-top: 12px;
+      }
+
+      .note {
+        border-top: 1px solid #e6ebf3;
+        color: #667085;
+        padding: 18px 24px;
+      }
+
+      code {
+        background: #eef2f7;
+        border-radius: 6px;
+        color: #334155;
+        padding: 2px 6px;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding: 28px 14px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .section + .section {
+          border-left: 0;
+          border-top: 1px solid #e6ebf3;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Typst math to KaTeX</h1>
+        <p>정적 페이지에서 Typst 스타일 수식 일부를 LaTeX로 바꾼 뒤 KaTeX로 실시간 렌더링합니다.</p>
+      </header>
+
+      <section class="panel">
+        <div class="grid">
+          <div class="section">
+            <label for="source">Typst math input</label>
+            <textarea id="source" spellcheck="false">frac(sqrt(x^2 + y_1), alpha + beta)</textarea>
+            <div class="examples" aria-label="Examples">
+              <button type="button" data-example="x^2 + y_1">power/subscript</button>
+              <button type="button" data-example="sqrt(x + 1)">sqrt</button>
+              <button type="button" data-example="frac(a, b)">frac</button>
+              <button type="button" data-example="sum_(i = 1)^n i">sum</button>
+              <button type="button" data-example="sin(theta) + cos(phi)">functions</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="label">Generated LaTeX</div>
+            <div id="latex" class="output"></div>
+            <div id="preview" class="preview"></div>
+            <div id="error" class="error" role="alert"></div>
+          </div>
+        </div>
+
+        <p class="note">
+          지원 범위: <code>^</code>, <code>_</code>, <code>sqrt(...)</code>, <code>frac(a, b)</code>, 괄호, <code>&lt;=</code>/<code>&gt;=</code>/<code>!=</code> 포함 기본 연산자, 그리스 문자와 일부 함수입니다.
+        </p>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <script src="./typst-math.js"></script>
+    <script>
+      const source = document.getElementById("source");
+      const latexOutput = document.getElementById("latex");
+      const preview = document.getElementById("preview");
+      const error = document.getElementById("error");
+
+      function render() {
+        try {
+          const latex = typstMathToLatex(source.value);
+          latexOutput.textContent = latex;
+          error.textContent = "";
+
+          if (window.katex) {
+            katex.render(latex, preview, {
+              displayMode: true,
+              throwOnError: false,
+            });
+          } else {
+            preview.textContent = "KaTeX CDN을 불러오지 못했습니다.";
+          }
+        } catch (err) {
+          latexOutput.textContent = "";
+          preview.textContent = "";
+          error.textContent = err.message;
+        }
+      }
+
+      source.addEventListener("input", render);
+
+      for (const button of document.querySelectorAll("[data-example]")) {
+        button.addEventListener("click", () => {
+          source.value = button.dataset.example;
+          render();
+          source.focus();
+        });
+      }
+
+      render();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Typst Math Converter Tests</title>
+    <style>
+      body {
+        color: #18212f;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 2rem;
+      }
+
+      .pass {
+        color: #116329;
+      }
+
+      .fail {
+        color: #b42318;
+      }
+
+      pre {
+        background: #f6f8fb;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Typst Math Converter Tests</h1>
+    <div id="summary"></div>
+    <pre id="results"></pre>
+
+    <script src="./typst-math.js"></script>
+    <script>
+      const tests = [
+        ["x^2", "x^{2}"],
+        ["a_i", "a_{i}"],
+        ["sqrt(x + 1)", "\\sqrt{x + 1}"],
+        ["frac(a, b)", "\\frac{a}{b}"],
+        ["alpha + beta", "\\alpha + \\beta"],
+        ["sin(theta)", "\\sin (\\theta)"],
+        ["(a + b)", "(a + b)"],
+        ["[x, y]", "[x, y]"],
+        ["sum_(i = 1)^n i", "\\sum_{i = 1}^{n} i"],
+        ["frac(sqrt(x), y_1)", "\\frac{\\sqrt{x}}{y_{1}}"],
+        ["0", "0"],
+        ["x <= y != z >= 0", "x \\le y \\ne z \\ge 0"],
+      ];
+
+      const lines = [];
+      let failures = 0;
+
+      for (const [input, expected] of tests) {
+        try {
+          const actual = typstMathToLatex(input);
+          const passed = actual === expected;
+
+          if (!passed) {
+            failures += 1;
+          }
+
+          lines.push(`${passed ? "PASS" : "FAIL"} ${input}\n  expected: ${expected}\n  actual:   ${actual}`);
+        } catch (error) {
+          failures += 1;
+          lines.push(`FAIL ${input}\n  threw: ${error.message}`);
+        }
+      }
+
+      const summary = document.getElementById("summary");
+      summary.className = failures === 0 ? "pass" : "fail";
+      summary.textContent = failures === 0
+        ? `All ${tests.length} tests passed.`
+        : `${failures} of ${tests.length} tests failed.`;
+      document.getElementById("results").textContent = lines.join("\n\n");
+    </script>
+  </body>
+</html>
