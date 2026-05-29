@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Typst Math to KaTeX</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
     <style>
       :root {
         color: #172033;
@@ -140,6 +140,14 @@
         padding: 24px;
       }
 
+      .preview.raw {
+        align-items: flex-start;
+        color: #334155;
+        font: 0.95rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        justify-content: flex-start;
+        white-space: pre-wrap;
+      }
+
       .error {
         color: #b42318;
         font-size: 0.95rem;
@@ -180,20 +188,24 @@
     <main>
       <header>
         <h1>Typst math to KaTeX</h1>
-        <p>정적 페이지에서 Typst 스타일 수식 일부를 LaTeX로 바꾼 뒤 KaTeX로 실시간 렌더링합니다.</p>
+        <p>정적 페이지에서 Typst 수식 문법의 넓은 순수 JavaScript 하위 집합을 LaTeX로 바꾼 뒤 KaTeX로 실시간 렌더링합니다.</p>
       </header>
 
       <section class="panel">
         <div class="grid">
           <div class="section">
             <label for="source">Typst math input</label>
-            <textarea id="source" spellcheck="false">frac(sqrt(x^2 + y_1), alpha + beta)</textarea>
+            <textarea id="source" spellcheck="false">phi.alt = (1 + sqrt(5)) / 2</textarea>
             <div class="examples" aria-label="Examples">
-              <button type="button" data-example="x^2 + y_1">power/subscript</button>
-              <button type="button" data-example="sqrt(x + 1)">sqrt</button>
-              <button type="button" data-example="frac(a, b)">frac</button>
+              <button type="button" data-example="x_1^2 + f''">attach/primes</button>
+              <button type="button" data-example="√x + root(3, y)">roots</button>
+              <button type="button" data-example="a / b / c">slash frac</button>
               <button type="button" data-example="sum_(i = 1)^n i">sum</button>
-              <button type="button" data-example="sin(theta) + cos(phi)">functions</button>
+              <button type="button" data-example="mat(1, 2; 3, 4)">matrix</button>
+              <button type="button" data-example="cases(x < 0, -1; x >= 0, 1)">cases</button>
+              <button type="button" data-example="a -> b |-> c ...">shorthands</button>
+              <button type="button" data-example-key="ramanujan">Ramanujan sum</button>
+              <button type="button" data-example-key="quadratic">quadratic formula</button>
             </div>
           </div>
 
@@ -206,24 +218,50 @@
         </div>
 
         <p class="note">
-          지원 범위: <code>^</code>, <code>_</code>, <code>sqrt(...)</code>, <code>frac(a, b)</code>, 괄호, <code>&lt;=</code>/<code>&gt;=</code>/<code>!=</code> 포함 기본 연산자, 그리스 문자와 일부 함수입니다.
+          지원 범위: Typst 평가기나 레이아웃 엔진이 아닌 문법 전용 근사입니다. 첨자, 프라임, 슬래시 분수, 유니코드/함수형 루트, 점 표기 기호, shorthands, <code>binom</code>/<code>vec</code>/<code>mat</code>/<code>cases</code>, accent 함수와 일부 연산자를 지원합니다. <code>#</code> 코드, <code>..</code> spread, named args, 패키지/전체 Typst 평가와 정밀 레이아웃은 명시적으로 지원하지 않습니다.
         </p>
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
     <script src="./typst-math.js"></script>
     <script>
       const source = document.getElementById("source");
       const latexOutput = document.getElementById("latex");
       const preview = document.getElementById("preview");
       const error = document.getElementById("error");
+      const examples = {
+        ramanujan: `zeta(s) = sum_(n=1)^oo 1/n^s = 1/1^s + 1/2^s + 1/3^s + dots
+eta(s) = sum_(n=1)^oo (-1)^(n-1)/n^s = 1/1^s - 1/2^s + 1/3^s - 1/4^s + dots
+2/2^s zeta(s) = 2(1/2^s + 1/4^s + 1/6^s + dots) = 2^(1-s) zeta(s)
+zeta(s) - 2^(1-s)zeta(s) &= (1/1^s + 1/2^s + 1/3^s + dots) - (2/2^s + 2/4^s + 2/6^s + dots)
+(1 - 2^(1-s))zeta(s) &= 1/1^s - 1/2^s + 1/3^s - 1/4^s + dots
+(1 - 2^(1-s))zeta(s) &= eta(s)
+zeta(s) &= 1 / (1 - 2^(1-s)) eta(s)
+1 / (1+x)^2 &= 1 - 2x + 3x^2 - 4x^3 + dots quad (|x| < 1)
+lim_(x -> 1^-) 1 / (1+x)^2 &= 1 - 2 + 3 - 4 + dots = eta(-1) = 1/4
+zeta(-1) &= 1 / (1 - 2^(1 - (-1))) eta(-1)
+&= 1 / (1 - 2^2) times 1/4
+&= 1 / (1 - 4) times 1/4
+&= -1/3 times 1/4
+&= -1/12
+1 + 2 + 3 + 4 + dots &= -1/12`,
+        quadratic: `a x^2 + b x + c &= 0
+a x^2 + b x &= -c
+x^2 + b/a x &= -c/a
+x^2 + b/a x + (b/(2a))^2 &= (b/(2a))^2 - c/a
+(x + b/(2a))^2 &= b^2/(4a^2) - c/a
+(x + b/(2a))^2 &= (b^2 - 4 a c)/(4 a^2)
+x + b/(2a) &= plus.minus sqrt(b^2 - 4 a c)/(2a)
+x &= (-b plus.minus sqrt(b^2 - 4 a c))/(2a)`,
+      };
 
       function render() {
         try {
           const latex = typstMathToLatex(source.value);
           latexOutput.textContent = latex;
           error.textContent = "";
+          preview.classList.remove("raw");
 
           if (window.katex) {
             katex.render(latex, preview, {
@@ -234,17 +272,18 @@
             preview.textContent = "KaTeX CDN을 불러오지 못했습니다.";
           }
         } catch (err) {
-          latexOutput.textContent = "";
-          preview.textContent = "";
-          error.textContent = err.message;
+          latexOutput.textContent = source.value;
+          preview.classList.add("raw");
+          preview.textContent = source.value;
+          error.textContent = `문법을 변환하지 못해서 원문 그대로 표시합니다: ${err.message}`;
         }
       }
 
       source.addEventListener("input", render);
 
-      for (const button of document.querySelectorAll("[data-example]")) {
+      for (const button of document.querySelectorAll("[data-example], [data-example-key]")) {
         button.addEventListener("click", () => {
-          source.value = button.dataset.example;
+          source.value = examples[button.dataset.exampleKey] ?? button.dataset.example;
           render();
           source.focus();
         });

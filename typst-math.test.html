@@ -46,6 +46,40 @@
         ["frac(sqrt(x), y_1)", "\\frac{\\sqrt{x}}{y_{1}}"],
         ["0", "0"],
         ["x <= y != z >= 0", "x \\le y \\ne z \\ge 0"],
+        ["a / b", "\\frac{a}{b}"],
+        ["a / b / c", "\\frac{\\frac{a}{b}}{c}"],
+        ["a / (b / c)", "\\frac{a}{\\frac{b}{c}}"],
+        ["f' + f''", "f^{\\prime} + f^{\\prime\\prime}"],
+        ["x_1^2", "x_{1}^{2}"],
+        ["x^2_1", "x_{1}^{2}"],
+        ["√x + ∛y + ∜(a + b)", "\\sqrt{x} + \\sqrt[3]{y} + \\sqrt[4]{a + b}"],
+        ["root(3, x) + sqrt(x)", "\\sqrt[3]{x} + \\sqrt{x}"],
+        ["phi.alt + plus.minus + arrow.r", "\\varphi + \\pm + \\rightarrow"],
+        ["a -> b |-> c ...", "a \\to b \\mapsto c \\ldots"],
+        ["a := b <==> c || d", "a \\coloneqq b \\Longleftrightarrow c \\Vert d"],
+        ["[|x|] << y >>> z", "\\llbracket x \\rrbracket \\ll y \\ggg z"],
+        ["x ≤ y ≥ z ≠ 0 ∑_i^n i + ∞", "x \\le y \\ge z \\ne 0 \\sum_{i}^{n} i + \\infty"],
+        ["binom(n, k)", "\\binom{n}{k}"],
+        ["vec(1, 2, 3)", "\\begin{pmatrix} 1 \\\\ 2 \\\\ 3 \\end{pmatrix}"],
+        ["mat(1, 2; 3, 4)", "\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}"],
+        ["cases(x < 0, -1; x >= 0, 1)", "\\begin{cases} x < 0 & - 1 \\\\ x \\ge 0 & 1 \\end{cases}"],
+        ["hat(x) + bar(y) + tilde(z) + dot(a) + underline(b) + overline(c)", "\\hat{x} + \\bar{y} + \\tilde{z} + \\dot{a} + \\underline{b} + \\overline{c}"],
+        ["op(\"lim\")_x", "\\operatorname{lim}_{x}"],
+        ["underover(arrow.r, below, above)", "\\overset{above}{\\underset{below}{\\rightarrow}}"],
+        ["sin(theta) + ln(x)", "\\sin (\\theta) + \\ln (x)"],
+        ["f(x) + floor(x)", "f (x) + floor (x)"],
+        ["a = b\nc &= d", "\\begin{aligned} & a = b \\\\ c & = d \\end{aligned}"],
+        ["1 + 2\n3 + 4", "\\begin{gathered} 1 + 2 \\\\ 3 + 4 \\end{gathered}"],
+        ["x &= (-b plus.minus sqrt(b^2 - 4 a c))/(2a)", "\\begin{aligned} x & = \\frac{- b \\pm \\sqrt{b^{2} - 4 a c}}{2 a} \\end{aligned}"],
+        ["a + sqrt(,) + b", "a + \\text{sqrt(,)} + b"],
+        ["#x + y", "\\text{\\#x} + y"],
+        ["mat(..xs) + 1", "\\text{mat(..xs)} + 1"],
+        ["sqrt(x, size: #50%)", "\\text{sqrt(x, size: \\#50\\%)}"],
+        ["vec(1, delim: \"[\")", "\\text{vec(1, delim: \"[\")}"],
+        ["op(\"a_b\")", "\\text{op(\"a\\_b\")}"],
+      ];
+
+      const errorTests = [
       ];
 
       const lines = [];
@@ -67,11 +101,27 @@
         }
       }
 
+      for (const [input, expectedMessage] of errorTests) {
+        try {
+          const actual = typstMathToLatex(input);
+          failures += 1;
+          lines.push(`FAIL ${input}\n  expected error containing: ${expectedMessage}\n  actual:   ${actual}`);
+        } catch (error) {
+          const passed = error.message.includes(expectedMessage);
+
+          if (!passed) {
+            failures += 1;
+          }
+
+          lines.push(`${passed ? "PASS" : "FAIL"} ${input}\n  expected error containing: ${expectedMessage}\n  actual error: ${error.message}`);
+        }
+      }
+
       const summary = document.getElementById("summary");
       summary.className = failures === 0 ? "pass" : "fail";
       summary.textContent = failures === 0
-        ? `All ${tests.length} tests passed.`
-        : `${failures} of ${tests.length} tests failed.`;
+        ? `All ${tests.length + errorTests.length} tests passed.`
+        : `${failures} of ${tests.length + errorTests.length} tests failed.`;
       document.getElementById("results").textContent = lines.join("\n\n");
     </script>
   </body>
