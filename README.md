@@ -38,7 +38,9 @@ KaTeX는 CDN에서 불러오므로 렌더링에는 네트워크 연결이 필요
 - 프라임: `f''`
 - 분수: `a / b`, `frac(a, b)`
 - 루트: `sqrt(x)`, `root(3, x)`, `√x`, `∛x`, `∜x`
-- 기호와 shorthand: `phi.alt`, `plus.minus`, `a -> b`, `a := b`, `[|x|]`
+- Typst 공식 `sym` 기호 이름과 수학 shorthand: `phi.alt`, `sym.arrow.r`, `#sym.arrow.l`, `plus.minus`, `a -> b`, `a <~~ b`, `[|x|]`
+- 집합/논리/관계 연산자: `subset`, `subset.eq`, `in.not`, `forall`, `exists`, `parallel`, `perp`, `prec`, `succ`
+- 정적 수학 helper: `abs(x)`, `norm(v)`, `floor(x)`, `ceil(x)`, `bold(x)`, `bb(N)`, `cal(C)`
 - 일부 구조: `binom`, `vec`, `mat`, `cases`, accent 함수, `op`, `underover`
 
 지원하지 않는 것:
@@ -48,6 +50,7 @@ KaTeX는 CDN에서 불러오므로 렌더링에는 네트워크 연결이 필요
 - spread args `..xs`
 - named args 전체
 - Typst와 동일한 정밀 레이아웃 및 스타일링
+- 모든 기호의 의미별 LaTeX 명령 매핑. KaTeX 명령을 확실히 아는 기호는 LaTeX 명령으로, 그 외 공식 `sym` 기호는 Unicode 텍스트 fallback으로 변환합니다.
 
 ## Tests
 
