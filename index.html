@@ -207,6 +207,8 @@
               <button type="button" data-example="sym.arrow.r + #sym.arrow.l + aleph">symbols</button>
               <button type="button" data-example="A subset.eq B and x in.not emptyset">relations</button>
               <button type="button" data-example="abs(x / 2) + bb(N) + floor(y)">math helpers</button>
+              <button type="button" data-example="cancel(x + y) + lr(a + mid("|") + b)">layout helpers</button>
+              <button type="button" data-example="vec(1, 2, delim: "[") + attach(x, t: a, b: i)">static options</button>
               <button type="button" data-example-key="ramanujan">Ramanujan sum</button>
               <button type="button" data-example-key="quadratic">quadratic formula</button>
             </div>
@@ -221,7 +223,7 @@
         </div>
 
         <p class="note">
-          지원 범위: Typst 평가기나 레이아웃 엔진이 아닌 문법 전용 근사입니다. 첨자, 프라임, 슬래시 분수, 유니코드/함수형 루트, 공식 <code>sym</code> 기호 이름(<code>phi.alt</code>, <code>sym.arrow.r</code>, <code>#sym.arrow.l</code>)과 math shorthands, 집합/논리/관계 연산자(<code>subset</code>, <code>in.not</code>, <code>forall</code> 등), 정적 helper(<code>abs</code>, <code>norm</code>, <code>bb</code> 등), <code>binom</code>/<code>vec</code>/<code>mat</code>/<code>cases</code>, accent 함수와 일부 연산자를 지원합니다. <code>#sym.</code> 외의 <code>#</code> 코드, <code>..</code> spread, named args, 패키지/전체 Typst 평가와 정밀 레이아웃은 명시적으로 지원하지 않습니다.
+          지원 범위: Typst 평가기나 레이아웃 엔진이 아닌 문법 전용 근사입니다. 첨자, 프라임, 슬래시 분수, 유니코드/함수형 루트, 공식 <code>sym</code> 기호 이름(<code>phi.alt</code>, <code>sym.arrow.r</code>, <code>#sym.arrow.l</code>)과 math shorthands, 집합/논리/관계 연산자(<code>subset</code>, <code>in.not</code>, <code>forall</code> 등), 정적 helper(<code>abs</code>, <code>norm</code>, <code>cancel</code>, <code>lr</code>, <code>bb</code> 등), <code>binom</code>/<code>vec</code>/<code>mat</code>/<code>cases</code>, allowlist된 정적 옵션(<code>delim</code>, <code>attach</code> 위치 인자 등), accent 함수와 일부 연산자를 지원합니다. <code>#sym.</code> 외의 <code>#</code> 코드, <code>..</code> spread, 동적 named args, 패키지/전체 Typst 평가와 정밀 레이아웃은 명시적으로 지원하지 않습니다.
         </p>
       </section>
     </main>

@@ -1326,6 +1326,15 @@
     "ker",
     "hom",
     "arg",
+    "deg",
+    "lcm",
+    "mod",
+    "Pr",
+    "sech",
+    "coth",
+    "csch",
+    "sinc",
+    "tr",
   ]);
 
   const ACCENTS = new Map([
@@ -1335,6 +1344,19 @@
     ["dot", "\\dot"],
     ["underline", "\\underline"],
     ["overline", "\\overline"],
+    ["grave", "\\grave"],
+    ["acute", "\\acute"],
+    ["breve", "\\breve"],
+    ["caron", "\\check"],
+    ["macron", "\\bar"],
+    ["diaer", "\\ddot"],
+    ["dot.double", "\\ddot"],
+    ["dot.triple", "\\dddot"],
+    ["dot.quad", "\\ddddot"],
+    ["circle", "\\mathring"],
+    ["arrow", "\\vec"],
+    ["arrow.l", "\\overleftarrow"],
+    ["arrow.l.r", "\\overleftrightarrow"],
   ]);
 
   const DELIMITER_CALLS = new Map([
@@ -1355,7 +1377,28 @@
     ["bb", "\\mathbb"],
     ["cal", "\\mathcal"],
     ["scr", "\\mathscr"],
+    ["serif", ""],
   ]);
+
+  const STYLE_CALLS = new Map([
+    ["display", "\\displaystyle"],
+    ["inline", "\\textstyle"],
+    ["script", "\\scriptstyle"],
+    ["sscript", "\\scriptscriptstyle"],
+  ]);
+
+  const CLASS_CALLS = new Map([
+    ["normal", "\\mathord"],
+    ["ordinary", "\\mathord"],
+    ["relation", "\\mathrel"],
+    ["binary", "\\mathbin"],
+    ["opening", "\\mathopen"],
+    ["closing", "\\mathclose"],
+    ["punctuation", "\\mathpunct"],
+    ["large", "\\mathop"],
+  ]);
+
+  const NAMED_ARG_CALLS = new Set(["attach", "vec", "mat", "cases", "class", "op", "frac"]);
 
   const SHORTHANDS = [
     ["<==>", "\\Longleftrightarrow"],
@@ -1829,6 +1872,15 @@
         || name === "cases"
         || name === "op"
         || name === "underover"
+        || name === "cancel"
+        || name === "class"
+        || name === "text"
+        || name === "attach"
+        || name === "lr"
+        || name === "mid"
+        || name === "underbrace"
+        || name === "overbrace"
+        || STYLE_CALLS.has(name)
         || DELIMITER_CALLS.has(name)
         || VARIANT_CALLS.has(name)
         || ACCENTS.has(name)
@@ -1840,9 +1892,8 @@
       const args = this.parseArgs();
       this.expect(")");
 
-      if (args.named.length > 0) {
-        const names = args.named.map((arg) => arg.name).join(", ");
-        throw this.error(`Named arguments are evaluator/layout-dependent and unsupported here: ${names}`);
+      if (args.named.length > 0 && !NAMED_ARG_CALLS.has(name)) {
+        rejectUnknownNamedArgs(args, name, [], this);
       }
 
       if (name === "sqrt") {
@@ -1856,35 +1907,104 @@
       }
 
       if (name === "frac") {
+        rejectUnknownNamedArgs(args, name, ["style"], this);
         requireArity(args.flat, name, 2, this);
-        return `\\frac{${args.flat[0]}}{${args.flat[1]}}`;
+        const style = getNamedText(args, "style", this);
+
+        if (style === null || style === "vertical") {
+          return `\\frac{${args.flat[0]}}{${args.flat[1]}}`;
+        }
+
+        if (style === "skewed" || style === "horizontal") {
+          return `${args.flat[0]} / ${args.flat[1]}`;
+        }
+
+        throw this.error(`Unsupported frac style: ${style}`);
       }
 
       if (name === "binom") {
-        requireArity(args.flat, name, 2, this);
-        return `\\binom{${args.flat[0]}}{${args.flat[1]}}`;
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireAtLeast(args.flat, name, 2, this);
+        return `\\binom{${args.flat[0]}}{${args.flat.slice(1).join(", ")}}`;
       }
 
       if (name === "vec") {
+        rejectUnknownNamedArgs(args, name, ["delim"], this);
         requireAtLeast(args.flat, name, 1, this);
-        return matrix("pmatrix", args.flat.map((arg) => [arg]));
+        return matrix(matrixEnvironmentForDelim(getNamedText(args, "delim", this), "pmatrix"), args.flat.map((arg) => [arg]));
       }
 
       if (name === "mat") {
+        rejectUnknownNamedArgs(args, name, ["delim"], this);
         validateMatrixRows(args.rows, name, this);
-        return matrix("pmatrix", args.rows);
+        return matrix(matrixEnvironmentForDelim(getNamedText(args, "delim", this), "pmatrix"), args.rows);
       }
 
       if (name === "cases") {
+        rejectUnknownNamedArgs(args, name, ["delim"], this);
         validateMatrixRows(args.rows, name, this);
         for (const row of args.rows) {
           if (row.length !== 2) {
             throw this.error("cases expects exactly 2 entries per row");
           }
         }
-        return matrix("cases", args.rows);
+        return matrix(matrixEnvironmentForDelim(getNamedText(args, "delim", this), "cases"), args.rows);
       }
 
+      if (name === "cancel") {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 1, this);
+        return `\\cancel{${args.flat[0]}}`;
+      }
+
+      if (name === "text") {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 1, this);
+        return `\\text{${stripTextValue(args.flat[0], this)}}`;
+      }
+
+      if (name === "class") {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 2, this);
+        const className = stripTextValue(args.flat[0], this);
+        const command = CLASS_CALLS.get(className);
+
+        if (!command) {
+          throw this.error(`Unsupported math class: ${className}`);
+        }
+
+        return `${command}{${args.flat[1]}}`;
+      }
+
+      if (name === "attach") {
+        rejectUnknownNamedArgs(args, name, ["t", "b", "tl", "bl", "tr", "br"], this);
+        requireArity(args.flat, name, 1, this);
+        return attach(args.flat[0], args.named);
+      }
+
+      if (name === "lr") {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 1, this);
+        return `\\left(${args.flat[0]}\\right)`;
+      }
+
+      if (name === "mid") {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 1, this);
+        return `\\middle${stripTextValue(args.flat[0], this)}`;
+      }
+
+      if (name === "underbrace" || name === "overbrace") {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 1, this);
+        return `\\${name}{${args.flat[0]}}`;
+      }
+
+      if (STYLE_CALLS.has(name)) {
+        rejectUnknownNamedArgs(args, name, [], this);
+        requireArity(args.flat, name, 1, this);
+        return `{${STYLE_CALLS.get(name)} ${args.flat[0]}}`;
+      }
       if (DELIMITER_CALLS.has(name)) {
         requireArity(args.flat, name, 1, this);
         const [open, close, needsSpace] = DELIMITER_CALLS.get(name);
@@ -1902,6 +2022,7 @@
       }
 
       if (name === "op") {
+        rejectUnknownNamedArgs(args, name, ["limits"], this);
         requireArity(args.flat, name, 1, this);
         return `\\operatorname{${stripTextCommand(args.flat[0])}}`;
       }
@@ -2149,6 +2270,90 @@
     }
   }
 
+  function rejectUnknownNamedArgs(args, name, allowed, parser) {
+    const allowedNames = new Set(allowed);
+    const unknown = args.named
+      .map((arg) => arg.name)
+      .filter((argName) => !allowedNames.has(argName));
+
+    if (unknown.length > 0) {
+      throw parser.error(`Named arguments are evaluator/layout-dependent and unsupported here: ${unknown.join(", ")}`);
+    }
+  }
+
+  function getNamedText(args, name, parser) {
+    const arg = args.named.find((entry) => entry.name === name);
+    return arg ? stripTextValue(arg.value, parser) : null;
+  }
+
+  function stripTextValue(value, parser) {
+    const match = /^\\text\{(.*)\}$/.exec(value);
+
+    if (!match) {
+      throw parser.error("Expected a string literal");
+    }
+
+    return match[1];
+  }
+
+  function attach(base, named) {
+    const values = new Map(named.map((arg) => [arg.name, arg.value]));
+    let result = base;
+
+    if (values.has("bl")) {
+      result += `_{${values.get("bl")}}`;
+    }
+
+    if (values.has("tl")) {
+      result += `^{${values.get("tl")}}`;
+    }
+
+    if (values.has("br")) {
+      result += `_{${values.get("br")}}`;
+    }
+
+    if (values.has("tr")) {
+      result += `^{${values.get("tr")}}`;
+    }
+
+    if (values.has("b")) {
+      result += `_{${values.get("b")}}`;
+    }
+
+    if (values.has("t")) {
+      result += `^{${values.get("t")}}`;
+    }
+
+    return result;
+  }
+
+  function matrixEnvironmentForDelim(delim, fallback) {
+    if (delim === null || delim === "(") {
+      return fallback;
+    }
+
+    if (delim === "[") {
+      return "bmatrix";
+    }
+
+    if (delim === "{") {
+      return "Bmatrix";
+    }
+
+    if (delim === "|") {
+      return "vmatrix";
+    }
+
+    if (delim === "||") {
+      return "Vmatrix";
+    }
+
+    if (delim === "none" || delim === "") {
+      return "matrix";
+    }
+
+    return fallback;
+  }
   function validateMatrixRows(rows, name, parser) {
     if (rows.length === 0) {
       throw parser.error(`${name} expects at least one row`);

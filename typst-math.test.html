@@ -94,6 +94,15 @@
         ["bold(x) + italic(y) + upright(z) + sans(A)", "\\mathbf{x} + \\mathit{y} + \\mathrm{z} + \\mathsf{A}"],
         ["frak(g) + mono(m) + bb(N) + cal(C) + scr(L)", "\\mathfrak{g} + \\mathtt{m} + \\mathbb{N} + \\mathcal{C} + \\mathscr{L}"],
         ["det(A) + gcd(a) + limsup x + arcsin(y)", "\\det (A) + \\gcd (a) + \\limsup x + \\arcsin (y)"],
+        ["grave(x) + acute(y) + breve(z) + caron(w)", "\\grave{x} + \\acute{y} + \\breve{z} + \\check{w}"],
+        ["dot.double(x) + dot.triple(y) + dot.quad(z) + circle(a)", "\\ddot{x} + \\dddot{y} + \\ddddot{z} + \\mathring{a}"],
+        ["arrow(x) + arrow.l(y) + arrow.l.r(z)", "\\vec{x} + \\overleftarrow{y} + \\overleftrightarrow{z}"],
+        ["cancel(x + y) + text(\"rate per sec\")", "\\cancel{x + y} + \\text{rate per sec}"],
+        ["class(\"relation\", a arrow.r b) + class(\"binary\", plus.minus)", "\\mathrel{a \\rightarrow b} + \\mathbin{\\pm}"],
+        ["display(sum_i x_i) + inline(frac(a, b)) + script(x) + sscript(y)", "{\\displaystyle \\sum_{i} x_{i}} + {\\textstyle \\frac{a}{b}} + {\\scriptstyle x} + {\\scriptscriptstyle y}"],
+        ["vec(1, 2, delim: \"[\") + mat(1, 2; 3, 4, delim: \"|\")", "\\begin{bmatrix} 1 \\\\ 2 \\end{bmatrix} + \\begin{vmatrix} 1 & 2 \\\\ 3 & 4 \\end{vmatrix}"],
+        ["binom(n, k, m) + attach(x, t: a, b: i, tr: r, bl: l)", "\\binom{n}{k, m} + x_{l}^{r}_{i}^{a}"],
+        ["lr(a + mid(\"|\") + b) + underbrace(x + y) + overbrace(a + b)", "\\left(a + \\middle| + b\\right) + \\underbrace{x + y} + \\overbrace{a + b}"],
         ["f(x) + floor(x)", "f \\left(x\\right) + \\left\\lfloor x\\right\\rfloor"],
         ["a = b\nc &= d", "\\begin{aligned} & a = b \\\\ c & = d \\end{aligned}"],
         ["1 + 2\n3 + 4", "\\begin{gathered} 1 + 2 \\\\ 3 + 4 \\end{gathered}"],
@@ -102,7 +111,6 @@
         ["#x + y", "\\text{\\#x} + y"],
         ["mat(..xs) + 1", "\\text{mat(..xs)} + 1"],
         ["sqrt(x, size: #50%)", "\\text{sqrt(x, size: \\#50\\%)}"],
-        ["vec(1, delim: \"[\")", "\\text{vec(1, delim: \"[\")}"],
         ["op(\"a_b\")", "\\text{op(\"a\\_b\")}"],
       ];
 

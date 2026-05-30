@@ -40,15 +40,16 @@ KaTeX는 CDN에서 불러오므로 렌더링에는 네트워크 연결이 필요
 - 루트: `sqrt(x)`, `root(3, x)`, `√x`, `∛x`, `∜x`
 - Typst 공식 `sym` 기호 이름과 수학 shorthand: `phi.alt`, `sym.arrow.r`, `#sym.arrow.l`, `plus.minus`, `a -> b`, `a <~~ b`, `[|x|]`
 - 집합/논리/관계 연산자: `subset`, `subset.eq`, `in.not`, `forall`, `exists`, `parallel`, `perp`, `prec`, `succ`
-- 정적 수학 helper: `abs(x)`, `norm(v)`, `floor(x)`, `ceil(x)`, `bold(x)`, `bb(N)`, `cal(C)`
-- 일부 구조: `binom`, `vec`, `mat`, `cases`, accent 함수, `op`, `underover`
+- 정적 수학 helper: `abs(x)`, `norm(v)`, `floor(x)`, `ceil(x)`, `cancel(x)`, `text("...")`, `class("relation", x)`, `lr(x)`, `mid("|")`
+- 스타일/variant: `bold(x)`, `italic(x)`, `upright(x)`, `sans(x)`, `frak(x)`, `mono(x)`, `bb(N)`, `cal(C)`, `display(x)`, `inline(x)`, `script(x)`, `sscript(x)`
+- 일부 구조: `binom`, variadic `binom(n, k, m)`, `vec`, `mat`, `cases`, `vec(..., delim: "[")`, `mat(..., delim: "|")`, accent 함수, `op`, `underover`, `underbrace`, `overbrace`, `attach`
 
 지원하지 않는 것:
 
 - `#` 코드 실행, `#let`, 변수/함수 평가
 - `set`, `show`, 패키지, 커스텀 함수 실행
 - spread args `..xs`
-- named args 전체
+- named args 대부분. 단, 정적으로 안전한 `delim`, `style`, `attach` 위치 인자 등 일부 allowlist만 지원합니다.
 - Typst와 동일한 정밀 레이아웃 및 스타일링
 - 모든 기호의 의미별 LaTeX 명령 매핑. KaTeX 명령을 확실히 아는 기호는 LaTeX 명령으로, 그 외 공식 `sym` 기호는 Unicode 텍스트 fallback으로 변환합니다.
 
