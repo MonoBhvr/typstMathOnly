@@ -102,6 +102,7 @@
         ["display(sum_i x_i) + inline(frac(a, b)) + script(x) + sscript(y)", "{\\displaystyle \\sum_{i} x_{i}} + {\\textstyle \\frac{a}{b}} + {\\scriptstyle x} + {\\scriptscriptstyle y}"],
         ["vec(1, 2, delim: \"[\") + mat(1, 2; 3, 4, delim: \"|\")", "\\begin{bmatrix} 1 \\\\ 2 \\end{bmatrix} + \\begin{vmatrix} 1 & 2 \\\\ 3 & 4 \\end{vmatrix}"],
         ["binom(n, k, m) + attach(x, t: a, b: i, tr: r, bl: l)", "\\binom{n}{k, m} + x_{l}^{r}_{i}^{a}"],
+        ["binom(n, k_1, k_2, k_3, ..., k_m)", "\\binom{n}{k_{1}, k_{2}, k_{3}, \\ldots, k_{m}}"],
         ["lr(a + mid(\"|\") + b) + underbrace(x + y) + overbrace(a + b)", "\\left(a + \\middle| + b\\right) + \\underbrace{x + y} + \\overbrace{a + b}"],
         ["f(x) + floor(x)", "f \\left(x\\right) + \\left\\lfloor x\\right\\rfloor"],
         ["a = b\nc &= d", "\\begin{aligned} & a = b \\\\ c & = d \\end{aligned}"],

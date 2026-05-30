@@ -2059,7 +2059,7 @@
           throw this.error("Empty math call argument");
         }
 
-        if (this.startsWith("..")) {
+        if (this.startsWith("..") && !this.startsWith("...")) {
           throw this.error("Spread arguments with .. are evaluator-dependent and unsupported");
         }
 
